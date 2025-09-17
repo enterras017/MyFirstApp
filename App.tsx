@@ -1,11 +1,11 @@
 import React from 'react';
-import { StatusBar, StyleSheet, Text, View, Button, useColorScheme, TextInput, Keyboard } from 'react-native';
+import { StatusBar, StyleSheet, Text, View, Button, useColorScheme, TextInput, Keyboard, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export default function App() {
   const isDark = useColorScheme() === 'dark';
-  const [count, setCount] = React.useState(0);
-  const [name, setName] = React.useState('');
+  const [count, setCount] = React.useState<number>(0);
+  const [name, setName] = React.useState<string>('');
 
   return (
     <SafeAreaProvider>
@@ -18,14 +18,21 @@ export default function App() {
 
         {/* 入力フォーム */}
         <View style={styles.section}>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="お名前を入力"
-            returnKeyType="done"
-            onSubmitEditing={Keyboard.dismiss}
-            style={styles.input}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="お名前を入力"
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
+              style={styles.input}
+            />
+            {name.length > 0 && (
+              <TouchableOpacity onPress={() => { setName(''); Keyboard.dismiss(); }} style={styles.clearButton}>
+                <Text style={styles.clearButtonText}>×</Text>
+              </TouchableOpacity>
+            )}
+          </View>
           {name.trim().length > 0 && (
             <Text style={styles.greet}>こんにちは、{name} さん！</Text>
           )}
@@ -35,8 +42,8 @@ export default function App() {
         <View style={styles.section}>
           <Text style={styles.count}>カウント: {count}</Text>
           <View style={styles.row}>
-            <Button title="増やす" onPress={() => setCount(c => c + 1)} />
-            <Button title="減らす" onPress={() => setCount(c => c - 1)} />
+            <Button title="増やす" onPress={() => setCount((prev: number) => prev + 1)} />
+            <Button title="減らす" onPress={() => setCount((prev: number) => prev - 1)} />
             <Button title="リセット" onPress={() => setCount(0)} />
           </View>
         </View>
@@ -50,7 +57,10 @@ const styles = StyleSheet.create({
   section: { width: '100%', alignItems: 'center', gap: 8 },
   title: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
   desc: { fontSize: 16, color: '#555', textAlign: 'center' },
-  input: { width: '100%', borderWidth: 1, borderColor: '#ccc', borderRadius: 8, paddingHorizontal: 12, height: 44 },
+  inputContainer: { width: '100%', position: 'relative' },
+  input: { width: '100%', borderWidth: 1, borderColor: '#ccc', borderRadius: 8, paddingHorizontal: 12, paddingRight: 40, height: 44 },
+  clearButton: { position: 'absolute', right: 8, top: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: '#ccc', justifyContent: 'center', alignItems: 'center' },
+  clearButtonText: { fontSize: 18, color: '#fff', fontWeight: 'bold' },
   greet: { fontSize: 18, marginTop: 4 },
   count: { fontSize: 20, fontWeight: '600', textAlign: 'center' },
   row: { flexDirection: 'row', gap: 12, marginTop: 8 },
