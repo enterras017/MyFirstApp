@@ -1,11 +1,44 @@
 import React from 'react';
 import { StatusBar, StyleSheet, Text, View, Button, useColorScheme, TextInput, Keyboard, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
   const isDark = useColorScheme() === 'dark';
   const [count, setCount] = React.useState<number>(0);
   const [name, setName] = React.useState<string>('');
+
+  // アプリ起動時に保存された名前を読み込み
+  React.useEffect(() => {
+    loadName();
+  }, []);
+
+  // 名前を保存
+  const saveName = async (newName: string) => {
+    try {
+      await AsyncStorage.setItem('userName', newName);
+    } catch (error) {
+      console.error('名前の保存に失敗:', error);
+    }
+  };
+
+  // 保存された名前を読み込み
+  const loadName = async () => {
+    try {
+      const savedName = await AsyncStorage.getItem('userName');
+      if (savedName !== null) {
+        setName(savedName);
+      }
+    } catch (error) {
+      console.error('名前の読み込みに失敗:', error);
+    }
+  };
+
+  // 名前が変更されたら保存
+  const handleNameChange = (newName: string) => {
+    setName(newName);
+    saveName(newName);
+  };
 
   return (
     <SafeAreaProvider>
@@ -21,14 +54,14 @@ export default function App() {
           <View style={styles.inputContainer}>
             <TextInput
               value={name}
-              onChangeText={setName}
+              onChangeText={handleNameChange}
               placeholder="お名前を入力"
               returnKeyType="done"
               onSubmitEditing={Keyboard.dismiss}
               style={styles.input}
             />
             {name.length > 0 && (
-              <TouchableOpacity onPress={() => { setName(''); Keyboard.dismiss(); }} style={styles.clearButton}>
+              <TouchableOpacity onPress={() => { handleNameChange(''); Keyboard.dismiss(); }} style={styles.clearButton}>
                 <Text style={styles.clearButtonText}>×</Text>
               </TouchableOpacity>
             )}
